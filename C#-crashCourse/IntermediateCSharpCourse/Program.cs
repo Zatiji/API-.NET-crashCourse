@@ -3,6 +3,7 @@ using Dapper;
 using IntermediateCSharpCourse.Data;
 using IntermediateCSharpCourse.Models;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace IntermediateCSharpCourse
 {
@@ -13,6 +14,8 @@ namespace IntermediateCSharpCourse
         {
 
             DataContextDapper dapper = new DataContextDapper();
+            DataContextEF entityFramework = new DataContextEF();
+
             DateTime rightNow = dapper.loadDataSingle<DateTime>("SELECT GETDATE()");
 
             Computer myComputer = new Computer()
@@ -23,7 +26,10 @@ namespace IntermediateCSharpCourse
                 ReleaseDate = DateTime.Now,
                 Price = 948.87m,
                 VideoCard = "RTX 2060"
-            };
+            }; 
+
+            entityFramework.Add(myComputer);
+            entityFramework.SaveChanges(); // The two lines do the same thing that the sql query and command just below (done by dapper)
 
             string sql = @"INSERT INTO TutorialAppSchema.Computer (
                 Motherboard,
@@ -51,6 +57,8 @@ namespace IntermediateCSharpCourse
                 Computer.Price,
                 Computer.VideoCard
             FROM TutorialAppSchema.Computer";
+
+            IEnumerable<Computer>? computersEF = entityFramework.Computer.ToList<Computer>(); // to list objects with entity framework
         }
     }
 }
